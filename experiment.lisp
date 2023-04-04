@@ -125,3 +125,70 @@
                (list obj (car sbt) (bst-insrt e (cdr sbt))))
               (t
                x)))))
+
+;; WORKS FOR 2 of 3 cases
+(defun bst-del (e x)
+  "BST delete, if element e present, delete it"
+  (declare (xargs :guard (and (bstp x)
+                              (bst-ordp x))))
+  ;; Delete e from x if it is present inside the sorted binary tree using 
+  ;; tr<<e and or e<<tr
+    (if (atom x)
+        x
+        (let ((obj (car x))
+            (sbt (cdr x)))
+        (if (equal e obj)
+            (if (atom (car sbt))
+                (cdr sbt)
+                (if (atom (cdr sbt))
+                    (car sbt)
+                    (let ((obj (car sbt))
+                        (sbt (cdr sbt)))
+                    (cons (car (cdr sbt))
+                        (cons obj (cdr (cdr sbt)))))))
+            (if (<< e obj)
+                (cons obj (cons (bst-del e (car sbt)) (cdr sbt)))
+                (cons obj (cons (car sbt) (bst-del e (cdr sbt)))))))))
+
+
+;; Works for all except first
+(defun bst-del (e x)
+  "BST delete, if element e present, delete it"
+  (declare (xargs :guard (and (bstp x)
+                              (bst-ordp x))))
+  ;; Delete e from x if it is present inside the sorted binary tree using 
+  ;; tr<<e and or e<<tr
+    (if (atom x)
+        x
+        (let ((obj (car x))
+            (sbt (cdr x)))
+        (if (equal e obj)
+            (if (atom (car sbt))
+                (cdr sbt)
+                (if (atom (cdr sbt))
+                    (car sbt)
+                    (cons (leftmost-obj (cdr sbt)) (bst-del (leftmost-obj (cdr sbt)) (cdr sbt)))))
+            (if (<< e obj)
+                (cons obj (cons (bst-del e (car sbt)) (cdr sbt)))
+                (cons obj (cons (car sbt) (bst-del e (cdr sbt)))))))))
+
+;; VERY SOLID
+(defun bst-del (e x)
+  "BST delete, if element e present, delete it"
+  (declare (xargs :guard (and (bstp x)
+                              (bst-ordp x))))
+  ;; Delete e from x if it is present inside the sorted binary tree using 
+  ;; (bst-del 5 '(5 (3 (1 ())) 9 (6 ()) 10 ())) would be (6 (3 (1 NIL)) 9 NIL 10 NIL)
+    (if (atom x)
+        x
+        (let ((obj (car x))
+            (sbt (cdr x)))
+        (if (equal e obj)
+            (if (atom (car sbt))
+                (cdr sbt)
+                (if (atom (cdr sbt))
+                    (car sbt)
+                    (cons (leftmost-obj (cdr sbt)) sbt)))
+            (if (<< e obj)
+                (cons obj (cons (bst-del e (car sbt)) (cdr sbt)))
+                (cons obj (cons (car sbt) (bst-del e (cdr sbt)))))))))

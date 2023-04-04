@@ -185,12 +185,35 @@
                 (bst-mbr e (car sbt))
                 (bst-mbr e (cdr sbt)))))))
 
+;; Get leftmost object in a bst
+(defun leftmost-obj (x)
+  (declare (xargs :guard (bstp x)))
+  (if (atom x)
+      x
+    (let ((obj (car x))
+          (sbt (cdr x)))
+      (if (atom (car sbt))
+          obj
+        (leftmost-obj (car sbt))))))
+
+;; Copy a bst except for the given object e
+(defun bst-copy (e x)
+  (declare (xargs :guard (and (bstp x)
+                              (bst-ordp x))))
+  (if (atom x)
+      x
+    (let ((obj (car x))
+          (sbt (cdr x)))
+      (if (equal e obj)
+          (cons (bst-copy e (car sbt)) (bst-copy e (cdr sbt)))
+        (cons obj (cons (bst-copy e (car sbt)) (bst-copy e (cdr sbt))))))))
+
 (defun bst-del (e x)
   "BST delete, if element e present, delete it"
   (declare (xargs :guard (and (bstp x)
                               (bst-ordp x))))
   ;; Delete e from x if it is present inside the sorted binary tree using 
-  ;; tr<<e and or e<<tr
+  ;; (bst-del 5 '(5 (3 (1 ())) 9 (6 ()) 10 ())) would be (6 (3 (1 NIL)) 9 NIL 10 NIL)
     (if (atom x)
         x
         (let ((obj (car x))
@@ -200,12 +223,8 @@
                 (cdr sbt)
                 (if (atom (cdr sbt))
                     (car sbt)
-                    (let ((obj (car sbt))
-                        (sbt (cdr sbt)))
-                    (cons (car (cdr sbt))
-                        (cons obj (cdr (cdr sbt)))))))
+                    (cons (leftmost-obj (cdr sbt)) (bst-copy (leftmost-obj (cdr sbt)) x))))
             (if (<< e obj)
                 (cons obj (cons (bst-del e (car sbt)) (cdr sbt)))
                 (cons obj (cons (car sbt) (bst-del e (cdr sbt)))))))))
 
-                
