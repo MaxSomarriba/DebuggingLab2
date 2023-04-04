@@ -1,3 +1,93 @@
+#|
+NAME
+insrt - inserts an element into an ordered set
+
+mbr - tests whether an element is in an ordered set and returns t or nil
+accordingly
+
+del - deletes an element from an ordered set and returns the resulting
+ordered set or nil if the element is not in the ordered set
+
+bst-insrt - inserts an element into a binary search tree and returns the new
+tree
+
+bst-mbr - tests whether an element is in a binary search tree and returns t or
+nil accordingly
+
+bst-del - deletes an element from a binary search tree and returns the new
+list. If the element is not in the tree, the tree is returned unchanged
+
+SYNOPSIS
+(insrt e x)
+(mbr e x)
+(del e x)
+(bst-insrt e x)
+(bst-mbr e x)
+(bst-del e x)
+
+DESCRIPTION
+The insrt function inserts an element into an ordered set by simply comparing
+the element to the elements in the set. If the element is less than the first
+element in the set, it is inserted at the beginning of the set. If the element
+is greater than the current element it moves on to the next element.
+
+The mbr function tests whether an element is in an ordered set by comparing
+the element to the elements in the set. This simply done by traversing the
+entire list and checking if the element is equal to the current element. If
+the element is found, the function returns t. If the end of the list is hit then
+nil is returned.
+
+The del function deletes an element from an ordered set by traversing the list
+and comparing the element to the elements in the set. If the element is found,
+it is removed from the set and the resulting set is returned. If the element is
+not found, the set is returned unchanged and nil is returned.
+
+The bst-insrt function inserts an element into a binary search tree by first
+checking if the tree is empty. If it is, the element is inserted at the root
+of the tree. If the tree is not empty, the element is compared to the current
+element. If the element is less than the current element, the function is
+recursively called on the left subtree. If the element is greater than the
+current element, the function is recursively called on the right subtree.
+
+The bst-mbr function tests whether an element is in a binary search tree by
+first checking if the tree is empty. If it is, nil is returned. If the tree is
+not empty, the element is compared to the current element. If the element is
+equal to the current element, t is returned. If the element is less than the
+current element, the function is recursively called on the left subtree. If the
+element is greater than the current element, the function is recursively called
+on the right subtree.
+
+The bst-del function deletes an element from a binary search tree by first
+checking if the tree is empty. If it is, the tree is returned unchanged. If the
+tree is not empty, the element is compared to the current element. If the
+element is equal to the current element, the element is deleted from the tree
+and the resulting tree is returned. If the element is less than the current
+element, the function is recursively called on the left subtree. If the element
+is greater than the current element, the function is recursively called on the
+right subtree.
+
+HOW IT WORKS
+The individual functions use multiple helper functions as well to assist in
+their operation. The helper functions are:
+
+- << - checks if the first element is less than the second element
+
+- setp - checks if the list is an ordered set
+
+- bstp - checks if the list is a binary search tree
+
+- tr<<e - checks if all elements in the tree are less than the given element
+
+- e<<tr - checks if all elements in the tree are greater than the given element
+
+- leftmost-obj - returns the leftmost object in a given tree
+
+- leftmost-obj-build - returns the tree with the leftmost object removed
+
+AUTHOR
+Written by Max Somarriba
+Base code provided by University of Texas CS340D
+|#
 
 ; CS340d Lab 2 definitions
 
@@ -196,22 +286,21 @@
           obj
         (leftmost-obj (car sbt))))))
 
-;; Copy a bst except for the given object e
-(defun bst-copy (e x)
-  (declare (xargs :guard (and (bstp x)
-                              (bst-ordp x))))
+(defun leftmost-obj-build (x)
+  (declare (xargs :guard (bstp x)))
   (if (atom x)
       x
     (let ((obj (car x))
           (sbt (cdr x)))
-      (if (equal e obj)
-          (cons (bst-copy e (car sbt)) (bst-copy e (cdr sbt)))
-        (cons obj (cons (bst-copy e (car sbt)) (bst-copy e (cdr sbt))))))))
+      (if (atom (car sbt))
+          (cdr sbt)
+        (cons obj (cons (leftmost-obj-build (car sbt))(cdr sbt))))))) ; (obj . (lsbt . rsbt)) = (cons obj (cons lsbt  rsbt))
+
 
 (defun bst-del (e x)
   "BST delete, if element e present, delete it"
-  (declare (xargs :guard (and (bstp x)
-                              (bst-ordp x))))
+;;   (declare (xargs :guard (and (bstp x)
+;;                               (bst-ordp x))))
   ;; Delete e from x if it is present inside the sorted binary tree using 
   ;; (bst-del 5 '(5 (3 (1 ())) 9 (6 ()) 10 ())) would be (6 (3 (1 NIL)) 9 NIL 10 NIL)
     (if (atom x)
@@ -223,7 +312,8 @@
                 (cdr sbt)
                 (if (atom (cdr sbt))
                     (car sbt)
-                    (cons (leftmost-obj (cdr sbt)) (bst-copy (leftmost-obj (cdr sbt)) x))))
+                    ;; (cons (leftmost-obj (cdr sbt)) (bst-copy (leftmost-obj (cdr sbt)) sbt))))
+                    (cons (leftmost-obj (cdr sbt)) (cons (car sbt) (leftmost-obj-build(cdr sbt))))))
             (if (<< e obj)
                 (cons obj (cons (bst-del e (car sbt)) (cdr sbt)))
                 (cons obj (cons (car sbt) (bst-del e (cdr sbt)))))))))

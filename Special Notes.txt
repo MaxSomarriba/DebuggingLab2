@@ -1,0 +1,57 @@
+(bst-insrt 4 '(5 (3 (1 ())) 9 (6 ()) 10 ()))
+(((3 (1 NIL)) 9 (6 NIL) 10 NIL)
+ ((1 NIL))
+ . 4)
+
+
+((((3 (1 NIL)) 9 (6 NIL) 10 NIL)
+  (((1 NIL)) . 4)))
+
+
+(defun bst-insrt (e x)
+  "BST insert element"
+  (declare (xargs :guard (and (atom e)
+                              (bstp x)
+                              (bst-ordp x))))
+    (if (atom x)
+        (list e)
+      (let ((obj (car x))
+            (sbt (cdr x)))
+        (if (<< e obj)
+            (list obj (bst-insrt e (car sbt)) (cdr sbt))
+          (list obj (car sbt) (bst-insrt e (cdr sbt)))))))
+
+
+(defun bst-insrt (e x)
+  "BST insert element"
+  (declare (xargs :guard (and (atom e)
+                              (bstp x)
+                              (bst-ordp x))))
+    (if (atom x)
+        (list e)
+      (let ((obj (car x))
+            (sbt (cdr x)))
+        (cond ((<< e obj)
+               (list obj (bst-insrt e (car sbt)) (cdr sbt)))
+              ((<< obj e)
+               (list obj (car sbt) (bst-insrt e (cdr sbt))))
+              (t
+               x)))))
+
+
+
+Remake the tree??
+
+
+(cons root (cons left-tree right-tree))
+
+
+Delete node:
+no children - works
+one child - rip and put up
+two children - make new root the least one on the right tree
+
+am gonna need to have case bases for these. On two children the store the number that needs to get removed and if statment the cons to put it back in or not 
+
+(6 (3 (1 NIL)) 9 (6 NIL) 10 NIL NIL)
+(6 (3 (1 NIL)) 9 (6 NIL) 10 NIL NIL)

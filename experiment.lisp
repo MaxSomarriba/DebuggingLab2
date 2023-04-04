@@ -192,3 +192,37 @@
             (if (<< e obj)
                 (cons obj (cons (bst-del e (car sbt)) (cdr sbt)))
                 (cons obj (cons (car sbt) (bst-del e (cdr sbt)))))))))
+
+
+
+Working pretty wtv rn!!!
+(defun bst-copy (e x)
+;;   (declare (xargs :guard (and (bstp x)
+;;                               (bst-ordp x))))
+  (if (atom x)
+      x
+    (let ((obj (car x))
+          (sbt (cdr x)))
+      (if (equal e obj)
+          (cons (bst-copy e (car sbt)) (bst-copy e (cdr sbt)))
+        (cons obj (cons (bst-copy e (car sbt)) (bst-copy e (cdr sbt))))))))
+
+(defun bst-del (e x)
+  "BST delete, if element e present, delete it"
+;;   (declare (xargs :guard (and (bstp x)
+;;                               (bst-ordp x))))
+  ;; Delete e from x if it is present inside the sorted binary tree using 
+  ;; (bst-del 5 '(5 (3 (1 ())) 9 (6 ()) 10 ())) would be (6 (3 (1 NIL)) 9 NIL 10 NIL)
+    (if (atom x)
+        x
+        (let ((obj (car x))
+            (sbt (cdr x)))
+        (if (equal e obj)
+            (if (atom (car sbt))
+                (cdr sbt)
+                (if (atom (cdr sbt))
+                    (car sbt)
+                    (cons (leftmost-obj (cdr sbt)) (bst-copy (leftmost-obj (cdr sbt)) sbt))))
+            (if (<< e obj)
+                (cons obj (cons (bst-del e (car sbt)) (cdr sbt)))
+                (cons obj (cons (car sbt) (bst-del e (cdr sbt)))))))))
